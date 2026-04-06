@@ -27,7 +27,6 @@ export interface Delegacion {
   nombre: string;
   direccion: string;
 }
-
 export interface UsuarioRequest {
   dni: string;
   nombreCompleto: string;
@@ -37,4 +36,15 @@ export interface UsuarioRequest {
   diasVacacionesAnuales?: number;
   delegacionId: string;
   managerId?: string | null;
+}
+export interface Ausencia {
+  id: string;
+  usuarioId: string;
+  usuarioNombre: string;
+  tipo: 'VACACIONES' | 'BAJA_MEDICA' | 'ASUNTOS_PROPIOS';
+  fechaInicio: string;
+  fechaFin: string;
+  estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA';
+  comentarios: string | null;
+  rutaJustificante: string | null;
 }

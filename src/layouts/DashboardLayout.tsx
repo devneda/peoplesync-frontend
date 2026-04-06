@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, Link } from 'react-router-dom';
-import { LogOut, Home, Clock, Calendar, Users, Menu, X, Shield } from 'lucide-react';
+import { LogOut, Home, Clock, Calendar, Users, Menu, X, Shield, CalendarCheck } from 'lucide-react';
 import { getRolFromToken } from '../utils/auth';
 
 export default function DashboardLayout() {
@@ -83,8 +83,23 @@ export default function DashboardLayout() {
               <Users className="h-5 w-5" /> Equipo
             </Link>
           )}
+
+          {(userRole === 'ADMIN' || userRole === 'MANAGER') && (
+            <Link
+              to="/gestion-ausencias"
+              onClick={closeMenu}
+              className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"
+            >
+              <CalendarCheck className="h-5 w-5" /> Gestión Ausencias
+            </Link>
+          )}
+
           {userRole === 'ADMIN' && (
-            <Link to="/admin" onClick={closeMenu} className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium">
+            <Link
+              to="/admin"
+              onClick={closeMenu}
+              className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"
+            >
               <Shield className="h-5 w-5" /> Administración
             </Link>
           )}

@@ -6,6 +6,8 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Fichajes from './pages/Fichajes';
 import Equipo from './pages/Equipo';
 import AdminUsuarios from './pages/AdminUsuarios';
+import Ausencias from './pages/Ausencias';
+import GestionAusencias from './pages/GestionAusencias';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
               <Route path="/fichajes" element={<Fichajes />} />
               <Route path="/equipo" element={<Equipo />} />
               <Route path="/admin" element={<AdminUsuarios />} />
+              <Route path="/ausencias" element={<Ausencias />} />
+              <Route path="/gestion-ausencias" element={<GestionAusencias />} />
             </Route>
           </Route>
         </Routes>
