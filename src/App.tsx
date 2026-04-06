@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './layouts/DashboardLayout';
 import Fichajes from './pages/Fichajes';
+import Equipo from './pages/Equipo';
+import AdminUsuarios from './pages/AdminUsuarios';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
                 }
               />
               <Route path="/fichajes" element={<Fichajes />} />
+              <Route path="/equipo" element={<Equipo />} />
+              <Route path="/admin" element={<AdminUsuarios />} />
             </Route>
           </Route>
         </Routes>
