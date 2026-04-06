@@ -29,4 +29,14 @@ export const fichajeService = {
     const response = await api.get(`/fichajes/reporte?fechaInicio=${inicio}&fechaFin=${fin}`);
     return response.data;
   },
+
+  obtenerReporteEmpleado: async (usuarioId: string, fechaInicio: string, fechaFin: string): Promise<ReporteHoras> => {
+    const response = await api.get(`/fichajes/reporte/${usuarioId}?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
+    return response.data;
+  },
+
+  obtenerFichajesEmpleado: async (usuarioId: string, inicio: string, fin: string): Promise<Fichaje[]> => {
+    const response = await api.get(`/fichajes/usuario/${usuarioId}?inicio=${inicio}&fin=${fin}`);
+    return response.data;
+  }
 };
