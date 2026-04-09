@@ -20,5 +20,9 @@ export const usuarioService = {
   obtenerDelegaciones: async (): Promise<Delegacion[]> => {
     const response = await api.get('/delegaciones');
     return response.data;
-  }
+  },
+  actualizarUsuario: async (id: string, data: Partial<Usuario>) => {
+    const response = await api.put(`/usuarios/${id}`, data);
+    return response.data;
+  },
 };

@@ -1,124 +1,155 @@
-import { useState } from 'react';
-import { Outlet, useNavigate, Link } from 'react-router-dom';
-import { LogOut, Home, Clock, Calendar, Users, Menu, X, Shield, CalendarCheck } from 'lucide-react';
-import { getRolFromToken } from '../utils/auth';
+import { useState, useEffect } from 'react';
+import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
+import { LogOut, Settings, Layers, ShieldCheck } from 'lucide-react';
+import { getUsuarioFromToken, getRolFromToken } from '../utils/auth';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const user = getUsuarioFromToken();
   const userRole = getRolFromToken();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  // Estado para controlar el menú en versión móvil
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // FIX: Reiniciar el scroll al cambiar de página
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location.pathname]);
+
+  const getInitials = (identificador: string) => {
+    if (!identificador) return '??';
+    if (identificador.includes('@')) return identificador.substring(0, 2).toUpperCase();
+    const partes = identificador.split(' ');
+    if (partes.length >= 2) return (partes[0][0] + partes[1][0]).toUpperCase();
+    return identificador.substring(0, 2).toUpperCase();
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
 
-  // Función para cerrar el menú al hacer clic en un enlace (muy útil en móviles)
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row overflow-hidden">
-      {/* CABECERA MÓVIL (Solo visible en pantallas pequeñas) */}
-      <div className="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center z-30">
-        <h2 className="text-xl font-bold text-blue-600">PeopleSync</h2>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="text-slate-600 p-2 hover:bg-slate-100 rounded-lg transition-colors"
-        >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
-      </div>
+    <div className="min-h-screen bg-slate-100 flex flex-col">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 h-16 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link to="/dashboard" className="flex items-center gap-2 group">
+              <div className="bg-blue-600 p-1.5 rounded-lg group-hover:bg-blue-700 transition-colors shadow-sm">
+                <Layers className="w-6 h-6 text-white" />
+              </div>
+              {/* FIX: Quitamos el hidden para que el nombre se vea siempre en móvil */}
+              <span className="text-xl font-bold text-slate-800 tracking-tight">PeopleSync</span>
+            </Link>
 
-      {/* FONDO OSCURO PARA MÓVIL (Cuando el menú está abierto) */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-slate-900/50 z-40 md:hidden transition-opacity"
-          onClick={closeMenu}
-        />
-      )}
+            <nav className="hidden md:flex items-center gap-2 border-l border-slate-200 pl-8">
+              <Link
+                to="/dashboard"
+                className={`px-3 py-2 text-sm font-semibold rounded-lg transition-all ${isActive('/dashboard') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}
+              >
+                Inicio
+              </Link>
+              <Link
+                to="/fichajes"
+                className={`px-3 py-2 text-sm font-semibold rounded-lg transition-all ${isActive('/fichajes') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}
+              >
+                Fichajes
+              </Link>
+              <Link
+                to="/ausencias"
+                className={`px-3 py-2 text-sm font-semibold rounded-lg transition-all ${isActive('/ausencias') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}
+              >
+                Ausencias
+              </Link>
 
-      {/* MENÚ LATERAL (Sidebar) */}
-      <aside
-        className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl md:shadow-md transform transition-transform duration-300 ease-in-out flex flex-col
-        md:relative md:translate-x-0 
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}
-      >
-        <div className="p-6 border-b hidden md:block">
-          <h2 className="text-2xl font-bold text-blue-600">PeopleSync</h2>
+              {userRole === 'ADMIN' && (
+                <Link
+                  to="/admin"
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-lg transition-all ${isActive('/admin') ? 'bg-purple-50 text-purple-700' : 'text-slate-600 hover:bg-slate-50'}`}
+                >
+                  <ShieldCheck className="w-4 h-4" /> Administración
+                </Link>
+              )}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors focus:ring-2 focus:ring-blue-100 outline-none"
+              >
+                <div className="w-10 h-10 bg-blue-100 text-blue-700 flex items-center justify-center rounded-full font-bold text-sm border-2 border-white shadow-sm">
+                  {user ? getInitials(user.sub || 'User') : '??'}
+                </div>
+              </button>
+
+              {isUserMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  ></div>
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-20 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-4 py-3 border-b border-slate-50 mb-1 bg-slate-50/50">
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5">
+                        Sesión actual
+                      </p>
+                      <p className="text-sm font-bold text-slate-800 truncate">{user?.sub}</p>
+                      <p className="text-xs font-medium text-blue-600 mt-1 capitalize">
+                        {userRole?.toLowerCase()}
+                      </p>
+                    </div>
+                    <Link
+                      to="/ajustes"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                    >
+                      <Settings className="w-4 h-4" /> Ajustes y Perfil
+                    </Link>
+                    <div className="h-px bg-slate-100 my-1"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" /> Cerrar Sesión
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
+      </header>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <Link
-            to="/dashboard"
-            onClick={closeMenu}
-            className="w-full flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-blue-50 rounded-xl transition-colors font-medium"
-          >
-            <Home className="h-5 w-5" /> Inicio
-          </Link>
-          <Link
-            to="/fichajes"
-            onClick={closeMenu}
-            className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"
-          >
-            <Clock className="h-5 w-5" /> Fichajes
-          </Link>
-          <Link
-            to="/ausencias"
-            onClick={closeMenu}
-            className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"
-          >
-            <Calendar className="h-5 w-5" /> Ausencias
-          </Link>
-
-          {(userRole === 'ADMIN' || userRole === 'MANAGER') && (
-            <Link
-              to="/equipo"
-              onClick={closeMenu}
-              className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"
-            >
-              <Users className="h-5 w-5" /> Equipo
-            </Link>
-          )}
-
-          {(userRole === 'ADMIN' || userRole === 'MANAGER') && (
-            <Link
-              to="/gestion-ausencias"
-              onClick={closeMenu}
-              className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"
-            >
-              <CalendarCheck className="h-5 w-5" /> Gestión Ausencias
-            </Link>
-          )}
-
-          {userRole === 'ADMIN' && (
-            <Link
-              to="/admin"
-              onClick={closeMenu}
-              className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors font-medium"
-            >
-              <Shield className="h-5 w-5" /> Administración
-            </Link>
-          )}
-        </nav>
-
-        <div className="p-4 border-t">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors font-medium"
-          >
-            <LogOut className="h-5 w-5" /> Cerrar Sesión
-          </button>
-        </div>
-      </aside>
-
-      {/* ÁREA PRINCIPAL (Donde cargan las páginas) */}
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto w-full h-[calc(100vh-73px)] md:h-screen">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <Outlet />
       </main>
+
+      {/* FIX: Oculto en móvil (hidden md:block) */}
+      <footer className="hidden md:block bg-white border-t border-slate-200 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Layers className="w-5 h-5 text-slate-400" />
+            <span className="text-sm font-semibold text-slate-500">PeopleSync HRIS</span>
+          </div>
+          <p className="text-sm text-slate-400 font-medium">
+            © {new Date().getFullYear()} Creado por Kenny Pineda. Todos los derechos reservados.
+          </p>
+          <div className="flex gap-4 text-sm font-medium text-slate-400">
+            <a href="#" className="hover:text-blue-600 transition-colors">
+              Soporte
+            </a>
+            <a href="#" className="hover:text-blue-600 transition-colors">
+              Privacidad
+            </a>
+            <a href="#" className="hover:text-blue-600 transition-colors">
+              Términos
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

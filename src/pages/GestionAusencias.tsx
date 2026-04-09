@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { CalendarCheck, Check, X, FileText, User, MessageSquare } from 'lucide-react';
+import { CalendarCheck, Check, X, FileText, User, MessageSquare, ArrowLeft } from 'lucide-react';
+// IMPORT CRÍTICO: Link pertenece a React Router, no a los iconos.
+import { Link } from 'react-router-dom';
 import { ausenciaService } from '../services/ausenciaService';
 import type { Ausencia } from '../types';
 import toast from 'react-hot-toast';
@@ -38,19 +40,10 @@ export default function GestionAusencias() {
   const verDocumento = async (id: string) => {
     try {
       const toastId = toast.loading('Abriendo documento...');
-
-      // 1. Descargamos el archivo seguro con nuestro token JWT
       const blob = await ausenciaService.descargarDocumento(id);
-
-      // 2. Creamos una URL temporal en la memoria del navegador
       const urlTemporal = window.URL.createObjectURL(blob);
-
       toast.dismiss(toastId);
-
-      // 3. Abrimos esa URL temporal en una pestaña nueva
       window.open(urlTemporal, '_blank');
-
-      // 4. Limpiamos la memoria después de un ratito
       setTimeout(() => window.URL.revokeObjectURL(urlTemporal), 10000);
     } catch (error) {
       console.error('Error al descargar el documento:', error);
@@ -59,8 +52,15 @@ export default function GestionAusencias() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+    // CAMBIO APLICADO: max-w-7xl
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div>
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 mb-4 transition-colors w-fit"
+        >
+          <ArrowLeft className="w-4 h-4" /> Volver al Inicio
+        </Link>
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
           <CalendarCheck className="w-8 h-8 text-blue-600" />
           Gestión de Ausencias

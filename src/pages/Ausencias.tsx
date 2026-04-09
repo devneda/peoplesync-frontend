@@ -6,16 +6,17 @@ import {
   CheckCircle2,
   XCircle,
   FileText,
+  ArrowLeft,
 } from 'lucide-react';
 import { ausenciaService } from '../services/ausenciaService';
 import type { Ausencia } from '../types';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 export default function Ausencias() {
   const [misAusencias, setMisAusencias] = useState<Ausencia[]>([]);
   const [cargando, setCargando] = useState(true);
 
-  // Estados del Formulario
   const [tipo, setTipo] = useState<'VACACIONES' | 'BAJA_MEDICA' | 'ASUNTOS_PROPIOS'>('VACACIONES');
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
@@ -73,8 +74,15 @@ export default function Ausencias() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    // CAMBIO APLICADO: max-w-7xl
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div>
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 mb-4 transition-colors w-fit"
+        >
+          <ArrowLeft className="w-4 h-4" /> Volver al Inicio
+        </Link>
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
           <CalendarIcon className="w-8 h-8 text-blue-600" />
           Ausencias y Vacaciones
@@ -83,7 +91,6 @@ export default function Ausencias() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* COLUMNA IZQUIERDA: Formulario de Solicitud */}
         <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 self-start">
           <h2 className="text-lg font-semibold text-slate-800 mb-6">Nueva Solicitud</h2>
 
@@ -135,7 +142,6 @@ export default function Ausencias() {
               />
             </div>
 
-            {/* Zona de Subida de Archivos */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Justificante (PDF/IMG)</label>
               <div className="relative border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition-colors">
@@ -163,7 +169,6 @@ export default function Ausencias() {
           </form>
         </div>
 
-        {/* COLUMNA DERECHA: Historial de Ausencias */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
             <h3 className="font-semibold text-slate-800">Mi Historial</h3>

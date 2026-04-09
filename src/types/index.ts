@@ -48,3 +48,36 @@ export interface Ausencia {
   comentarios: string | null;
   rutaJustificante: string | null;
 }
+export interface Delegacion {
+  id: string;
+  nombre: string;
+  direccion: string;
+}
+
+export interface Horario {
+  id: string;
+  nombre: string;
+  horaEntradaEsperada: string;
+  horaSalidaEsperada: string;
+  horasSemanales: number;
+  minutosDescanso: number;
+}
+export interface Calendario {
+  id: string;
+  nombre: string;
+  anio: number;
+  incluyeSabados: boolean;
+  incluyeDomingos: boolean;
+  delegacionId?: string;
+}
+export interface TurnoSemanaRequest {
+  semanaOrden: number;
+  horarioId: string;
+}
+
+export interface PatronRotacion {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  semanasCiclo: number;
+}

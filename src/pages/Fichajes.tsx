@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Play, Square, Clock, Calendar, AlertCircle } from 'lucide-react';
+import {
+  Play,
+  Square,
+  Clock,
+  Calendar,
+  AlertCircle,
+  ArrowLeft,
+  Home,
+  Building2,
+} from 'lucide-react';
 import { fichajeService } from '../services/fichajeService';
 import { type Fichaje } from '../types';
+import { Link } from 'react-router-dom';
 
 export default function Fichajes() {
   const [estaTrabajando, setEstaTrabajando] = useState(false);
@@ -11,27 +21,21 @@ export default function Fichajes() {
   const [horasSemana, setHorasSemana] = useState('0h 0m');
   const [horaActual, setHoraActual] = useState(new Date());
 
+  // NUEVO ESTADO: Para controlar el tipo de fichaje
+  const [tipoFichaje, setTipoFichaje] = useState<'PRESENCIAL' | 'TELETRABAJO'>('PRESENCIAL');
+
   const cargarDatos = async () => {
     try {
       const hoyStr = new Date().toISOString().split('T')[0];
-
-      // 1. Obtener estado actual
       const estado = await fichajeService.obtenerEstado();
       setEstaTrabajando(estado);
-
-      // 2. Obtener lista de fichajes de hoy
       const lista = await fichajeService.obtenerFichajesHoy();
       setFichajesHoy(lista);
-
-      // 3. Obtener reporte de hoy
       const reporteHoy = await fichajeService.obtenerReporte(hoyStr, hoyStr);
       setHorasHoy(reporteHoy.tiempoFormateado);
-
-      // 4. Obtener reporte de la semana (simplificado: últimos 7 días)
       const haceSieteDias = new Date();
       haceSieteDias.setDate(haceSieteDias.getDate() - 7);
       const inicioSemana = haceSieteDias.toISOString().split('T')[0];
-
       const reporteSemana = await fichajeService.obtenerReporte(inicioSemana, hoyStr);
       setHorasSemana(reporteSemana.tiempoFormateado);
     } catch (error) {
@@ -43,9 +47,7 @@ export default function Fichajes() {
     const inicializar = async () => {
       await cargarDatos();
     };
-
     inicializar();
-
     const timer = setInterval(() => setHoraActual(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -53,16 +55,15 @@ export default function Fichajes() {
   const handleFichar = async () => {
     try {
       if (!estaTrabajando) {
-        await fichajeService.ficharEntrada('PRESENCIAL');
+        // ENVIAMOS EL TIPO SELECCIONADO AL BACKEND
+        await fichajeService.ficharEntrada(tipoFichaje);
         setEstaTrabajando(true);
-        toast.success('¡Entrada registrada con éxito!');
+        toast.success(`¡Entrada registrada (${tipoFichaje.toLowerCase()})!`);
       } else {
         await fichajeService.ficharSalida();
         setEstaTrabajando(false);
         toast.success('¡Salida registrada!');
       }
-
-      // ¡Recargamos los datos para que la tabla y las horas se actualicen al instante!
       await cargarDatos();
     } catch (error) {
       console.error('Error al fichar', error);
@@ -71,20 +72,48 @@ export default function Fichajes() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Control Horario</h1>
-        <p className="text-slate-500 mt-1">Gestiona tu jornada laboral y revisa tus registros.</p>
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 mb-4 transition-colors w-fit"
+        >
+          <ArrowLeft className="w-4 h-4" /> Volver al Inicio
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+            <Clock className="w-8 h-8 text-blue-600" />
+            Fichajes
+          </h1>
+          <p className="text-slate-500 mt-1">Gestiona tu jornada laboral y revisa tus registros.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* COLUMNA IZQUIERDA: Botón y Reloj */}
         <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-center text-center relative overflow-hidden">
           <div
             className={`absolute top-0 w-full h-2 ${estaTrabajando ? 'bg-emerald-500' : 'bg-slate-200'}`}
           ></div>
 
-          <div className="mb-8 mt-2">
+          {/* SELECTOR DE TIPO DE FICHAJE (Oculto si ya está trabajando) */}
+          {!estaTrabajando && (
+            <div className="mt-4 mb-2 bg-slate-100 p-1.5 rounded-xl flex items-center w-full max-w-[240px]">
+              <button
+                onClick={() => setTipoFichaje('PRESENCIAL')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${tipoFichaje === 'PRESENCIAL' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                <Building2 className="w-4 h-4" /> Oficina
+              </button>
+              <button
+                onClick={() => setTipoFichaje('TELETRABAJO')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${tipoFichaje === 'TELETRABAJO' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                <Home className="w-4 h-4" /> Remoto
+              </button>
+            </div>
+          )}
+
+          <div className={`${estaTrabajando ? 'mb-8 mt-2' : 'mb-8 mt-4'}`}>
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">
               {estaTrabajando ? 'Turno en curso' : 'Fuera de turno'}
             </h2>
@@ -122,9 +151,7 @@ export default function Fichajes() {
           </button>
         </div>
 
-        {/* COLUMNA DERECHA: Resumen y Tabla */}
         <div className="col-span-1 lg:col-span-2 flex flex-col gap-6">
-          {/* Tarjetas de Resumen Dinámicas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex items-start gap-4">
               <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
@@ -146,7 +173,6 @@ export default function Fichajes() {
             </div>
           </div>
 
-          {/* Tabla de Fichajes de Hoy */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h3 className="font-semibold text-slate-800">Fichajes de hoy</h3>
@@ -189,14 +215,19 @@ export default function Fichajes() {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-md">
-                          {f.tipo}
+                        <span
+                          className={`flex items-center gap-1.5 w-max px-2.5 py-1 text-xs font-bold rounded-md ${f.tipo === 'TELETRABAJO' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}
+                        >
+                          {f.tipo === 'TELETRABAJO' ? (
+                            <Home className="w-3.5 h-3.5" />
+                          ) : (
+                            <Building2 className="w-3.5 h-3.5" />
+                          )}
+                          {f.tipo === 'TELETRABAJO' ? 'Remoto' : 'Oficina'}
                         </span>
                       </td>
                     </tr>
                   ))}
-
-                  {/* Mensaje si no hay fichajes */}
                   {fichajesHoy.length === 0 && (
                     <tr>
                       <td colSpan={3} className="px-6 py-12 text-center">

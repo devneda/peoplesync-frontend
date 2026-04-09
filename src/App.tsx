@@ -8,6 +8,7 @@ import Equipo from './pages/Equipo';
 import AdminUsuarios from './pages/AdminUsuarios';
 import Ausencias from './pages/Ausencias';
 import GestionAusencias from './pages/GestionAusencias';
+import Inicio from './pages/Inicio'; // Importante tener esta línea
 
 function App() {
   return (
@@ -20,14 +21,7 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
-              <Route
-                path="/dashboard"
-                element={
-                  <div className="bg-white p-6 rounded-lg shadow-sm">
-                    <h1 className="text-2xl font-bold text-gray-800">Bienvenido a tu portal</h1>
-                  </div>
-                }
-              />
+              <Route path="/dashboard" element={<Inicio />} />
               <Route path="/fichajes" element={<Fichajes />} />
               <Route path="/equipo" element={<Equipo />} />
               <Route path="/admin" element={<AdminUsuarios />} />
