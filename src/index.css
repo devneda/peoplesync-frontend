@@ -1,1 +1,11 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+/* Le decimos a Tailwind que el modo oscuro se activa por clases (la clase .dark en el html) */
+@custom-variant dark (&:is(.dark *));
+
+/* Configuraciones globales para transiciones suaves */
+html {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}

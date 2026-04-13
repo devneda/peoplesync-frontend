@@ -25,4 +25,8 @@ export const usuarioService = {
     const response = await api.put(`/usuarios/${id}`, data);
     return response.data;
   },
+  obtenerManagers: async (): Promise<Usuario[]> => {
+    const response = await api.get('/usuarios/managers');
+    return response.data;
+  },
 };
