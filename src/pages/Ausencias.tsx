@@ -74,31 +74,35 @@ export default function Ausencias() {
   };
 
   return (
-    // CAMBIO APLICADO: max-w-7xl
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-      <div>
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
         <Link
           to="/dashboard"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 mb-4 transition-colors w-fit"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 mb-4 transition-colors w-fit"
         >
           <ArrowLeft className="w-4 h-4" /> Volver al Inicio
         </Link>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
           <CalendarIcon className="w-8 h-8 text-blue-600" />
           Ausencias y Vacaciones
         </h1>
-        <p className="text-slate-500 mt-1">Solicita días libres o notifica bajas médicas.</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-2">
+          Solicita días libres o notifica bajas médicas.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 self-start">
-          <h2 className="text-lg font-semibold text-slate-800 mb-6">Nueva Solicitud</h2>
+        {/* FORMULARIO */}
+        <div className="lg:col-span-1 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 self-start transition-colors">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Nueva Solicitud</h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Tipo de Ausencia</label>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                Tipo de Ausencia
+              </label>
               <select
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors"
                 value={tipo}
                 onChange={(e) => setTipo(e.target.value as Ausencia['tipo'])}
               >
@@ -110,21 +114,25 @@ export default function Ausencias() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Desde</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                  Desde
+                </label>
                 <input
                   type="date"
                   required
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                  className="w-full px-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors"
                   value={fechaInicio}
                   onChange={(e) => setFechaInicio(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Hasta</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                  Hasta
+                </label>
                 <input
                   type="date"
                   required
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                  className="w-full px-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors"
                   value={fechaFin}
                   onChange={(e) => setFechaFin(e.target.value)}
                 />
@@ -132,10 +140,12 @@ export default function Ausencias() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Comentarios (Opcional)</label>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                Comentarios (Opcional)
+              </label>
               <textarea
                 rows={3}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-colors"
                 value={comentarios}
                 onChange={(e) => setComentarios(e.target.value)}
                 placeholder="Motivo o detalles adicionales..."
@@ -143,8 +153,10 @@ export default function Ausencias() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Justificante (PDF/IMG)</label>
-              <div className="relative border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition-colors">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                Justificante (PDF/IMG)
+              </label>
+              <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <input
                   type="file"
                   accept=".pdf,image/*"
@@ -153,7 +165,7 @@ export default function Ausencias() {
                 />
                 <div className="flex flex-col items-center gap-2 pointer-events-none">
                   <UploadCloud className="w-8 h-8 text-slate-400" />
-                  <span className="text-sm text-slate-600 font-medium">
+                  <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">
                     {archivo ? archivo.name : 'Haz clic o arrastra tu archivo aquí'}
                   </span>
                 </div>
@@ -162,60 +174,69 @@ export default function Ausencias() {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 mt-2"
+              className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 dark:shadow-none mt-2 active:scale-[0.98]"
             >
               Enviar Solicitud
             </button>
           </form>
         </div>
 
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-          <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <h3 className="font-semibold text-slate-800">Mi Historial</h3>
+        {/* HISTORIAL */}
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col transition-colors">
+          <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <h3 className="font-bold text-slate-800 dark:text-white text-lg">Mi Historial</h3>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 border-b border-slate-100">
+          <div className="overflow-x-auto p-4">
+            <table className="w-full text-left border-separate border-spacing-y-2">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">
+                  <th className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
                     Periodo
                   </th>
-                  <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">Tipo</th>
-                  <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">
+                  <th className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Tipo
+                  </th>
+                  <th className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
                     Justificante
                   </th>
-                  <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase">
+                  <th className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
                     Estado
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {cargando ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-slate-400">
+                    <td colSpan={4} className="px-4 py-12 text-center text-slate-400">
                       Cargando datos...
                     </td>
                   </tr>
                 ) : misAusencias.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                    <td
+                      colSpan={4}
+                      className="px-4 py-12 text-center text-slate-500 bg-slate-50 dark:bg-slate-800/20 rounded-xl"
+                    >
                       No tienes ausencias registradas
                     </td>
                   </tr>
                 ) : (
                   misAusencias.map((aus) => (
-                    <tr key={aus.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-slate-900">
+                    <tr
+                      key={aus.id}
+                      className="bg-slate-50 dark:bg-slate-800/50 rounded-xl transition-colors"
+                    >
+                      <td className="px-4 py-4 rounded-l-xl">
+                        <div className="text-sm font-bold text-slate-800 dark:text-slate-200">
                           {new Date(aus.fechaInicio).toLocaleDateString()}
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
                           al {new Date(aus.fechaFin).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-slate-600 font-medium">
+                      <td className="px-4 py-4">
+                        <span className="text-sm text-slate-600 dark:text-slate-300 font-bold">
                           {aus.tipo === 'BAJA_MEDICA'
                             ? 'Baja Médica'
                             : aus.tipo === 'ASUNTOS_PROPIOS'
@@ -223,28 +244,28 @@ export default function Ausencias() {
                               : 'Vacaciones'}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4">
                         {aus.rutaJustificante ? (
-                          <span className="flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md w-max">
+                          <span className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2.5 py-1.5 rounded-lg w-max">
                             <FileText className="w-3.5 h-3.5" /> Adjunto
                           </span>
                         ) : (
-                          <span className="text-slate-400 text-sm">-</span>
+                          <span className="text-slate-400 text-sm font-bold">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4 rounded-r-xl">
                         {aus.estado === 'APROBADA' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
                             <CheckCircle2 className="w-3.5 h-3.5" /> Aprobada
                           </span>
                         )}
                         {aus.estado === 'RECHAZADA' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400">
                             <XCircle className="w-3.5 h-3.5" /> Rechazada
                           </span>
                         )}
                         {aus.estado === 'PENDIENTE' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
                             <Clock className="w-3.5 h-3.5" /> Pendiente
                           </span>
                         )}

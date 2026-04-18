@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Play, Square, Clock, Calendar, AlertCircle, Building2, Home } from 'lucide-react';
+import {
+  Play,
+  Square,
+  Clock,
+  Calendar,
+  AlertCircle,
+  Building2,
+  Home,
+  Coffee,
+  PlusCircle,
+} from 'lucide-react';
 import { fichajeService } from '../services/fichajeService';
 import { type Fichaje } from '../types';
 
@@ -10,6 +20,9 @@ export default function Fichajes() {
   const [horasHoy, setHorasHoy] = useState('0h 0m');
   const [horasSemana, setHorasSemana] = useState('0h 0m');
   const [horaActual, setHoraActual] = useState(new Date());
+
+  // NUEVO: Estado para el contador en vivo
+  const [minutosActivos, setMinutosActivos] = useState(0);
 
   const [tipoFichaje, setTipoFichaje] = useState<'PRESENCIAL' | 'TELETRABAJO'>('PRESENCIAL');
   const [cargando, setCargando] = useState(true);
@@ -47,12 +60,51 @@ export default function Fichajes() {
 
   useEffect(() => {
     cargarDatos();
-    // Actualizamos el reloj de la pantalla cada segundo
-    const timer = setInterval(() => setHoraActual(new Date()), 1000);
+    const timer = setInterval(() => {
+      setHoraActual(new Date());
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const handleFichar = async () => {
+  // LÓGICA DEL CONTADOR EN VIVO
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (estaTrabajando) {
+      interval = setInterval(() => {
+        const turnoAbierto = fichajesHoy.find((f) => !f.fechaHoraSalida);
+        if (turnoAbierto) {
+          const entradaMs = new Date(turnoAbierto.fechaHoraEntrada).getTime();
+          const ahoraMs = new Date().getTime();
+          const diffMinutos = Math.floor((ahoraMs - entradaMs) / 60000);
+          setMinutosActivos(diffMinutos);
+        }
+      }, 10000); // Actualiza cada 10 segundos para no saturar
+    } else {
+      setMinutosActivos(0);
+    }
+    return () => clearInterval(interval);
+  }, [estaTrabajando, fichajesHoy]);
+
+  // FUNCIÓN PARA CALCULAR EL TOTAL EN VIVO
+  const obtenerTotalVisual = (textoBase: string) => {
+    if (minutosActivos === 0) return textoBase;
+
+    const match = textoBase.match(/(\d+)h\s*(\d+)m/);
+    let horas = 0,
+      minutos = 0;
+    if (match) {
+      horas = parseInt(match[1], 10);
+      minutos = parseInt(match[2], 10);
+    }
+
+    const totalMinutos = horas * 60 + minutos + minutosActivos;
+    const nuevasHoras = Math.floor(totalMinutos / 60);
+    const nuevosMinutos = totalMinutos % 60;
+
+    return `${nuevasHoras}h ${nuevosMinutos}m`;
+  };
+
+  const handleFichar = async (esPausa: boolean = false) => {
     try {
       if (!estaTrabajando) {
         await fichajeService.ficharEntrada(tipoFichaje);
@@ -61,10 +113,14 @@ export default function Fichajes() {
       } else {
         await fichajeService.ficharSalida();
         setEstaTrabajando(false);
-        toast.success('¡Salida registrada!');
+        if (esPausa) {
+          toast.success('¡Pausa registrada! Disfruta del café ☕');
+        } else {
+          toast.success('¡Salida registrada! Buen trabajo.');
+        }
       }
-      // Volvemos a pedir al backend el cálculo de horas y la tabla actualizada
       await cargarDatos();
+      setMinutosActivos(0); // Reseteamos el contador en vivo
     } catch (error) {
       console.error('Error al fichar', error);
       toast.error('Hubo un error al registrar el fichaje.');
@@ -78,14 +134,22 @@ export default function Fichajes() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
-          <Clock className="w-8 h-8 text-blue-600" />
-          Fichajes
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-2">
-          Gestiona tu jornada laboral y revisa tus registros.
-        </p>
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-800 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
+            <Clock className="w-8 h-8 text-blue-600" />
+            Fichajes
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">
+            Gestiona tu jornada laboral y revisa tus registros.
+          </p>
+        </div>
+        <button
+          onClick={() => toast('Función de fichaje manual en desarrollo', { icon: '🛠️' })}
+          className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+        >
+          <PlusCircle className="w-5 h-5" /> Añadir Fichaje Olvidado
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -126,28 +190,43 @@ export default function Fichajes() {
                 month: 'long',
               })}
             </div>
+            {/* Pequeño indicador del tiempo actual de esta sesión */}
+            {estaTrabajando && minutosActivos > 0 && (
+              <div className="mt-3 text-sm font-bold text-emerald-600 dark:text-emerald-400 animate-pulse">
+                + {minutosActivos} min. en esta sesión
+              </div>
+            )}
           </div>
 
-          <button
-            onClick={handleFichar}
-            className={`group flex flex-col items-center justify-center w-48 h-48 rounded-full text-white shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 ${
-              estaTrabajando
-                ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/30'
-                : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30'
-            }`}
-          >
-            {estaTrabajando ? (
-              <>
-                <Square className="w-14 h-14 mb-2 fill-current transition-transform group-hover:scale-110" />
-                <span className="text-lg font-bold tracking-wide">Finalizar</span>
-              </>
-            ) : (
-              <>
+          {/* BOTONERA DINÁMICA */}
+          <div className="flex items-center justify-center gap-4 w-full h-48">
+            {!estaTrabajando ? (
+              <button
+                onClick={() => handleFichar(false)}
+                className="group flex flex-col items-center justify-center w-48 h-48 rounded-full text-white bg-emerald-500 hover:bg-emerald-600 shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:scale-105 active:scale-95"
+              >
                 <Play className="w-14 h-14 mb-2 fill-current pl-2 transition-transform group-hover:scale-110" />
                 <span className="text-lg font-bold tracking-wide">Iniciar</span>
-              </>
+              </button>
+            ) : (
+              <div className="flex gap-4 w-full justify-center px-4 animate-in zoom-in duration-300">
+                <button
+                  onClick={() => handleFichar(true)}
+                  className="group flex flex-col items-center justify-center w-full aspect-square max-w-[140px] rounded-3xl text-amber-700 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 shadow-lg transition-all duration-300 active:scale-95"
+                >
+                  <Coffee className="w-10 h-10 mb-2 transition-transform group-hover:scale-110 group-hover:-rotate-12" />
+                  <span className="text-sm font-bold tracking-wide">Pausar</span>
+                </button>
+                <button
+                  onClick={() => handleFichar(false)}
+                  className="group flex flex-col items-center justify-center w-full aspect-square max-w-[140px] rounded-3xl text-white bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-500/30 transition-all duration-300 active:scale-95"
+                >
+                  <Square className="w-10 h-10 mb-2 fill-current transition-transform group-hover:scale-110" />
+                  <span className="text-sm font-bold tracking-wide">Finalizar</span>
+                </button>
+              </div>
             )}
-          </button>
+          </div>
         </div>
 
         {/* RESUMEN Y TABLA (Derecha) */}
@@ -161,7 +240,9 @@ export default function Fichajes() {
                 <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">
                   Horas hoy
                 </p>
-                <p className="text-3xl font-bold text-slate-800 dark:text-white mt-1">{horasHoy}</p>
+                <p className="text-3xl font-bold text-slate-800 dark:text-white mt-1">
+                  {obtenerTotalVisual(horasHoy)}
+                </p>
               </div>
             </div>
 
@@ -174,7 +255,7 @@ export default function Fichajes() {
                   Esta semana
                 </p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white mt-1">
-                  {horasSemana}
+                  {obtenerTotalVisual(horasSemana)}
                 </p>
               </div>
             </div>
