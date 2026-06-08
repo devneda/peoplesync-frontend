@@ -7,8 +7,6 @@ export const getRolFromToken = (): string | null => {
     const decodedJson = atob(payloadBase64);
     const decoded = JSON.parse(decodedJson);
 
-    console.log('Datos del Token:', decoded);
-
     return (
       decoded.rol ||
       decoded.role ||
@@ -16,23 +14,29 @@ export const getRolFromToken = (): string | null => {
       'USER'
     );
   } catch (error) {
-    console.error('Error al decodificar el token', error);
+    console.error(error);
     return null;
   }
 };
 
-export const getUsuarioFromToken = () => {
+interface DecodedToken {
+  sub: string;
+  rol: string;
+  id: string;
+  fotoUrl?: string;
+  requiereCambioPassword?: boolean;
+}
+
+export const getUsuarioFromToken = (): DecodedToken | null => {
   const token = localStorage.getItem('token');
   if (!token) return null;
 
   try {
     const payload = token.split('.')[1];
-
     const decodedPayload = JSON.parse(atob(payload));
-
-    return decodedPayload;
+    return decodedPayload as DecodedToken;
   } catch (error) {
-    console.error('Error al decodificar el token', error);
+    console.error(error);
     return null;
   }
 };

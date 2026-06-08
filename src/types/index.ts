@@ -21,6 +21,8 @@ export interface Usuario {
   managerId: string | null;
   createdAt: string;
   activo: boolean;
+  requiereCambioPassword?: boolean;
+  fotoUrl?: string;
 }
 export interface Delegacion {
   id: string;
@@ -36,6 +38,10 @@ export interface UsuarioRequest {
   diasVacacionesAnuales?: number;
   delegacionId: string;
   managerId?: string | null;
+  calendarioId?: string;
+  horarioId?: string;
+  patronId?: string;
+  fotoUrl?: string;
 }
 export interface Ausencia {
   id: string;
