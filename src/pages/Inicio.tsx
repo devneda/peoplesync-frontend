@@ -12,13 +12,12 @@ import {
   CalendarClock,
   Clock,
   CalendarDays,
-  FileText,
-  Settings,
   ArrowRight,
   ShieldCheck,
   Briefcase,
   Layers,
   Megaphone,
+  Settings,
 } from 'lucide-react';
 import type { Anuncio } from '../types';
 
