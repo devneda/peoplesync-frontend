@@ -43,9 +43,9 @@ export default function CambiarPassword() {
       
       toast.success('Contraseña actualizada correctamente');
       navigate('/dashboard');
-    } catch (err: any) {
-      console.error(err);
-      const mensaje = err.response?.data?.message || 'Error al actualizar la contraseña. Inténtalo de nuevo.';
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      const mensaje = axiosError.response?.data?.message || 'Error al actualizar la contraseña. Inténtalo de nuevo.';
       setError(mensaje);
     } finally {
       setLoading(false);

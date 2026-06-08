@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { Usuario, UsuarioRequest, Delegacion } from '../types';
+import type { Usuario, UsuarioRequest } from '../types';
 
 export const usuarioService = {
   obtenerMisEmpleados: async (): Promise<Usuario[]> => {

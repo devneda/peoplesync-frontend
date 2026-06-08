@@ -22,14 +22,10 @@ export default function Fichajes() {
   const [horasHoy, setHorasHoy] = useState('0h 0m');
   const [horasSemana, setHorasSemana] = useState('0h 0m');
   const [horaActual, setHoraActual] = useState(new Date());
-
-  // Estado para el contador en vivo
   const [minutosActivos, setMinutosActivos] = useState(0);
-
   const [tipoFichaje, setTipoFichaje] = useState<'PRESENCIAL' | 'TELETRABAJO'>('PRESENCIAL');
   const [cargando, setCargando] = useState(true);
 
-  // ESTADOS PARA FICHAJE MANUAL
   const [mostrarModalManual, setMostrarModalManual] = useState(false);
   const [fechaManual, setFechaManual] = useState(new Date().toISOString().split('T')[0]);
   const [horaEntradaManual, setHoraEntradaManual] = useState('09:00');
@@ -61,7 +57,7 @@ export default function Fichajes() {
       const reporteSemana = await fichajeService.obtenerReporte(inicioSemana, hoyStr);
       setHorasSemana(reporteSemana.tiempoFormateado);
     } catch (error) {
-      console.error('Error cargando datos', error);
+      console.error(error);
       toast.error('Error al sincronizar con el servidor');
     } finally {
       setCargando(false);
@@ -78,16 +74,22 @@ export default function Fichajes() {
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
+    
+    const calcularSincronizacion = () => {
+      const turnoAbierto = fichajesHoy.find((f) => !f.fechaHoraSalida);
+      if (turnoAbierto) {
+        const entradaMs = new Date(turnoAbierto.fechaHoraEntrada).getTime();
+        const ahoraMs = new Date().getTime();
+        const diffMinutos = Math.floor((ahoraMs - entradaMs) / 60000);
+        setMinutosActivos(diffMinutos);
+      }
+    };
+
     if (estaTrabajando) {
-      interval = setInterval(() => {
-        const turnoAbierto = fichajesHoy.find((f) => !f.fechaHoraSalida);
-        if (turnoAbierto) {
-          const entradaMs = new Date(turnoAbierto.fechaHoraEntrada).getTime();
-          const ahoraMs = new Date().getTime();
-          const diffMinutos = Math.floor((ahoraMs - entradaMs) / 60000);
-          setMinutosActivos(diffMinutos);
-        }
-      }, 10000);
+      // Calculamos inmediatamente al activar el turno
+      calcularSincronizacion();
+      // Actualizamos cada segundo para máxima precisión
+      interval = setInterval(calcularSincronizacion, 1000);
     } else {
       setMinutosActivos(0);
     }
@@ -126,7 +128,7 @@ export default function Fichajes() {
       await cargarDatos();
       setMinutosActivos(0);
     } catch (error) {
-      console.error('Error al fichar', error);
+      console.error(error);
       toast.error('Hubo un error al registrar el fichaje.');
     }
   };
@@ -137,9 +139,7 @@ export default function Fichajes() {
     try {
       const entrada = `${fechaManual}T${horaEntradaManual}:00`;
       const salida = `${fechaManual}T${horaSalidaManual}:00`;
-      
       await fichajeService.registrarManual(entrada, salida, tipoManual);
-      
       toast.success('Fichaje manual registrado correctamente');
       setMostrarModalManual(false);
       cargarDatos();
@@ -157,7 +157,7 @@ export default function Fichajes() {
     );
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8">
       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-slate-800 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
@@ -177,7 +177,6 @@ export default function Fichajes() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* PANEL DE CONTROL (Izquierda) */}
         <div className="col-span-1 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center text-center relative overflow-hidden transition-colors">
           <div
             className={`absolute top-0 w-full h-2 ${estaTrabajando ? 'bg-emerald-500 animate-pulse' : 'bg-slate-200 dark:bg-slate-800'}`}
@@ -232,7 +231,7 @@ export default function Fichajes() {
                 <span className="text-xl font-black tracking-widest uppercase">Entrada</span>
               </button>
             ) : (
-              <div className="flex gap-6 w-full justify-center px-4 animate-in zoom-in duration-300">
+              <div className="flex gap-6 w-full justify-center px-4 animate-in fade-in duration-500">
                 <button
                   onClick={() => handleFichar(true)}
                   className="group flex flex-col items-center justify-center w-full aspect-square max-w-[140px] rounded-[2rem] text-amber-700 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40 shadow-xl border border-amber-200/50 dark:border-amber-800/50 transition-all duration-300 active:scale-95"
@@ -252,7 +251,6 @@ export default function Fichajes() {
           </div>
         </div>
 
-        {/* RESUMEN Y TABLA (Derecha) */}
         <div className="col-span-1 lg:col-span-2 flex flex-col gap-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-6 transition-all hover:shadow-md">
@@ -367,10 +365,9 @@ export default function Fichajes() {
         </div>
       </div>
 
-      {/* MODAL FICHAJE MANUAL (Estilo Premium) */}
       {mostrarModalManual && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800 transition-all scale-in-center">
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800 transition-all">
             <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/30">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-200 dark:shadow-none">

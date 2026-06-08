@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { dashboardService, type DashboardStats } from '../services/dashboardService';
 import { anuncioService } from '../services/anuncioService';
+import { fichajeService } from '../services/fichajeService';
 import { getUsuarioFromToken, getRolFromToken } from '../utils/auth';
 import { Link } from 'react-router-dom';
 import {
@@ -12,15 +13,15 @@ import {
   CalendarClock,
   Clock,
   CalendarDays,
-  FileText,
-  Settings,
   ArrowRight,
   ShieldCheck,
   Briefcase,
   Layers,
   Megaphone,
+  Settings,
+  X,
 } from 'lucide-react';
-import type { Anuncio } from '../types';
+import type { Anuncio, Usuario } from '../types';
 
 export default function Inicio() {
   const usuario = getUsuarioFromToken();
@@ -28,6 +29,11 @@ export default function Inicio() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [estaTrabajando, setEstaTrabajando] = useState(false);
+
+  const [mostrarModalActivos, setMostrarModalActivos] = useState(false);
+  const [usuariosActivos, setUsuariosActivos] = useState<Usuario[]>([]);
+  const [cargandoActivos, setCargandoActivos] = useState(false);
 
   const fechaHoy = new Date().toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -38,12 +44,14 @@ export default function Inicio() {
   useEffect(() => {
     const cargarTodo = async () => {
       try {
-        const [statsData, anunciosData] = await Promise.all([
+        const [statsData, anunciosData, estadoTrabajo] = await Promise.all([
           (rol === 'ADMIN' || rol === 'MANAGER') ? dashboardService.obtenerEstadisticas() : Promise.resolve(null),
-          anuncioService.obtenerAnuncios()
+          anuncioService.obtenerAnuncios(),
+          rol === 'USER' ? fichajeService.obtenerEstado() : Promise.resolve(false)
         ]);
         setStats(statsData);
         setAnuncios(anunciosData.slice(0, 3));
+        setEstaTrabajando(estadoTrabajo);
       } catch (error) {
         console.error(error);
       } finally {
@@ -111,10 +119,10 @@ export default function Inicio() {
               {rol === 'USER' && (
                 <Link
                   to="/fichajes"
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-200 dark:shadow-none active:scale-95"
+                  className={`flex items-center gap-2 px-4 py-2 text-white rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95 ${estaTrabajando ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200 dark:shadow-none' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200 dark:shadow-none'}`}
                 >
                   <Clock className="w-4 h-4" />
-                  Fichar ahora
+                  {estaTrabajando ? 'Turno en curso' : 'Fichar ahora'}
                 </Link>
               )}
             </div>
@@ -157,15 +165,29 @@ export default function Inicio() {
                 Oficinas Activas
               </p>
             </div>
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
+            <div 
+              onClick={async () => {
+                setCargandoActivos(true);
+                setMostrarModalActivos(true);
+                try {
+                  const activos = await dashboardService.obtenerActivosHoy();
+                  setUsuariosActivos(activos);
+                } catch (error) {
+                  console.error(error);
+                } finally {
+                  setCargandoActivos(false);
+                }
+              }}
+              className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer hover:ring-2 hover:ring-blue-500"
+            >
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl w-max mb-4">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <h3 className="text-3xl font-bold text-slate-800 dark:text-white">
                 {stats.empleadosActivosHoy}
               </h3>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mt-1">
-                Fichajes Hoy
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mt-1 flex items-center justify-between">
+                Turnos Abiertos <ArrowRight className="w-4 h-4" />
               </p>
             </div>
             <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
@@ -247,16 +269,16 @@ export default function Inicio() {
             <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-1">
-                  ¿Hora de trabajar?
+                  {estaTrabajando ? 'Turno Activo' : '¿Hora de trabajar?'}
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-4">
-                  No olvides registrar tu jornada de hoy.
+                  {estaTrabajando ? 'Recuerda registrar tu pausa o salida al terminar.' : 'No olvides registrar tu jornada de hoy.'}
                 </p>
                 <Link
                   to="/fichajes"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-200 dark:shadow-none"
+                  className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 text-white font-bold rounded-xl transition-colors shadow-lg dark:shadow-none ${estaTrabajando ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200'}`}
                 >
-                  <Clock className="w-4 h-4" /> Ir a Fichar
+                  <Clock className="w-4 h-4" /> {estaTrabajando ? 'Ver mi turno' : 'Ir a Fichar'}
                 </Link>
               </div>
               <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-900/20 rounded-full flex items-center justify-center border-4 border-white dark:border-slate-900 shadow-sm">
@@ -382,6 +404,60 @@ export default function Inicio() {
           </div>
         </div>
       </div>
+
+      {mostrarModalActivos && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800 transition-all flex flex-col max-h-[80vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/30">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-200 dark:shadow-none">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Activos Ahora</h3>
+                  <p className="text-sm font-bold text-slate-400">Empleados trabajando en este momento</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setMostrarModalActivos(false)}
+                className="p-3 text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-2xl transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto p-2">
+              {cargandoActivos ? (
+                <div className="p-12 text-center text-slate-400 font-bold">Cargando...</div>
+              ) : usuariosActivos.length === 0 ? (
+                <div className="p-12 text-center text-slate-500">No hay empleados activos en este momento.</div>
+              ) : (
+                <ul className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                  {usuariosActivos.map((u) => (
+                    <li key={u.id} className="p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-2xl m-2">
+                      {u.fotoUrl ? (
+                        <img 
+                          src={u.fotoUrl.replace('/upload/', '/upload/w_100,h_100,c_fill,g_face,q_auto:best,f_auto/')} 
+                          alt={u.nombreCompleto} 
+                          className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700" 
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center font-bold">
+                          {u.nombreCompleto.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-bold text-slate-800 dark:text-white">{u.nombreCompleto}</p>
+                        <p className="text-xs font-medium text-slate-500">{u.email}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

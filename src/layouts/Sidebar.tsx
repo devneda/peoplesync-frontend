@@ -127,7 +127,7 @@ export default function Sidebar({ darkMode, setDarkMode, isOpen, setIsOpen }: Si
                   src={user.fotoUrl.replace('/upload/', '/upload/w_200,h_200,c_fill,g_face,q_auto:best,f_auto/')}
                   alt={user.sub}
                   className="w-12 h-12 rounded-2xl object-cover shadow-lg border-2 border-white dark:border-slate-800"
-                  style={{ imageRendering: 'high-quality' }}
+                  style={{ imageRendering: 'crisp-edges' }}
                 />
               ) : (
                 <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center rounded-2xl font-black text-sm shadow-lg">
