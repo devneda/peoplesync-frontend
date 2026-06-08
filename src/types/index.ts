@@ -81,3 +81,12 @@ export interface PatronRotacion {
   descripcion: string;
   semanasCiclo: number;
 }
+
+export interface Anuncio {
+  id: string;
+  titulo: string;
+  contenido: string;
+  fechaPublicacion: string;
+  autorNombre: string;
+  categoria: string;
+}
