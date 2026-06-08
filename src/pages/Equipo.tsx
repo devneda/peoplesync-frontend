@@ -183,7 +183,7 @@ export default function Equipo() {
                             src={emp.fotoUrl.replace('/upload/', '/upload/w_400,h_400,c_fill,g_face,q_auto:best,f_auto/')}
                             alt={emp.nombreCompleto}
                             className="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-slate-700 shadow-md transition-transform group-hover:scale-105"
-                            style={{ imageRendering: 'high-quality' }}
+                            style={{ imageRendering: 'crisp-edges' }}
                           />
                         ) : (
                           <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center font-bold text-lg">

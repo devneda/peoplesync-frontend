@@ -38,6 +38,7 @@ export default function DashboardLayout() {
         <button
           onClick={() => setIsMobileMenuOpen(true)}
           className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          aria-label="Abrir menú de navegación"
         >
           <Menu className="w-6 h-6" />
         </button>

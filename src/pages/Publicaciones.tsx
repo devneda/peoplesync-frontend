@@ -11,7 +11,6 @@ export default function Publicaciones() {
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
   const [cargando, setCargando] = useState(true);
   
-  // Estados para nuevo anuncio
   const [mostrarForm, setMostrarForm] = useState(false);
   const [titulo, setTitulo] = useState('');
   const [contenido, setContenido] = useState('');
@@ -98,8 +97,9 @@ export default function Publicaciones() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Título del Anuncio</label>
+                <label htmlFor="titulo-anuncio" className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Título del Anuncio</label>
                 <input
+                  id="titulo-anuncio"
                   type="text"
                   required
                   value={titulo}
@@ -109,8 +109,9 @@ export default function Publicaciones() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Categoría</label>
+                <label htmlFor="categoria-anuncio" className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Categoría</label>
                 <select
+                  id="categoria-anuncio"
                   value={categoria}
                   onChange={(e) => setCategoria(e.target.value)}
                   className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-bold"
@@ -123,8 +124,9 @@ export default function Publicaciones() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Contenido</label>
+              <label htmlFor="contenido-anuncio" className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Contenido</label>
               <textarea
+                id="contenido-anuncio"
                 required
                 rows={4}
                 value={contenido}
@@ -196,6 +198,7 @@ export default function Publicaciones() {
                 <button
                   onClick={() => handleEliminar(anuncio.id)}
                   className="self-start p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-2xl transition-all md:opacity-0 group-hover:opacity-100"
+                  aria-label="Eliminar publicación"
                 >
                   <Trash2 className="w-6 h-6" />
                 </button>

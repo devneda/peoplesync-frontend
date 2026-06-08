@@ -22,7 +22,8 @@ export default function TabCalendarios({ calendarios, delegaciones, onRefresh }:
   const handleCrearCalendario = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await estructuraService.crearCalendario(formCalendario);
+      const { delegacionId, ...datosCalendario } = formCalendario;
+      await estructuraService.crearCalendario(delegacionId, datosCalendario);
       toast.success('Calendario creado');
       onRefresh();
     } catch (error: unknown) {
