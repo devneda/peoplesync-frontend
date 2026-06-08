@@ -11,6 +11,7 @@ import GestionAusencias from './pages/GestionAusencias';
 import Inicio from './pages/Inicio';
 import Informes from './pages/Informes';
 import Publicaciones from './pages/Publicaciones';
+import CambiarPassword from './pages/CambiarPassword';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/cambiar-password" element={<CambiarPassword />} />
 
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>

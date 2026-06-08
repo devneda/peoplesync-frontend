@@ -28,7 +28,6 @@ export default function Equipo() {
   const [empleados, setEmpleados] = useState<Usuario[]>([]);
   const [cargando, setCargando] = useState(true);
 
-  // Estados del Modal
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState<Usuario | null>(null);
   const [reporteModal, setReporteModal] = useState<ReporteHoras | null>(null);
   const [fichajesModal, setFichajesModal] = useState<Fichaje[]>([]);
@@ -43,7 +42,7 @@ export default function Equipo() {
       const data = await usuarioService.obtenerMisEmpleados();
       setEmpleados(data);
     } catch (error) {
-      console.error('Error al cargar empleados:', error);
+      console.error(error);
       toast.error('No se pudo cargar la lista del equipo');
     } finally {
       setCargando(false);
@@ -75,7 +74,7 @@ export default function Equipo() {
       setReporteModal(reporteSemana);
       setFichajesModal(fichajesHoy);
     } catch (error) {
-      console.error('Error al obtener datos del empleado:', error);
+      console.error(error);
       toast.error('Error al cargar la información');
       cerrarModal();
     } finally {
@@ -131,7 +130,6 @@ export default function Equipo() {
         </div>
       </div>
 
-      {/* Tabla de Empleados */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors p-4">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-separate border-spacing-y-2">
@@ -178,13 +176,27 @@ export default function Equipo() {
                     key={emp.id}
                     className="bg-slate-50 dark:bg-slate-800/50 rounded-xl transition-colors group"
                   >
-                    <td className="px-4 py-4 rounded-l-xl">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-slate-800 dark:text-white">
-                          {emp.nombreCompleto}
-                        </span>
-                        <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">
-                          <Fingerprint className="w-3 h-3" /> <span>{emp.dni}</span>
+                    <td className="px-4 py-6 rounded-l-xl">
+                      <div className="flex items-center gap-4">
+                        {emp.fotoUrl ? (
+                          <img
+                            src={emp.fotoUrl.replace('/upload/', '/upload/w_400,h_400,c_fill,g_face,q_auto:best,f_auto/')}
+                            alt={emp.nombreCompleto}
+                            className="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-slate-700 shadow-md transition-transform group-hover:scale-105"
+                            style={{ imageRendering: 'high-quality' }}
+                          />
+                        ) : (
+                          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center font-bold text-lg">
+                            {emp.nombreCompleto.substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <span className="font-extrabold text-slate-800 dark:text-white text-lg">
+                            {emp.nombreCompleto}
+                          </span>
+                          <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">
+                            <Fingerprint className="w-3 h-3" /> <span>{emp.dni}</span>
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -231,19 +243,25 @@ export default function Equipo() {
         </div>
       </div>
 
-      {/* --- MODAL FLOTANTE --- */}
       {empleadoSeleccionado && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 transition-colors">
-            {/* Cabecera del Modal */}
             <div className="px-6 pt-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex flex-col gap-4">
               <div className="flex justify-between items-start">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center font-bold text-xl">
-                    {empleadoSeleccionado.nombreCompleto.substring(0, 2).toUpperCase()}
-                  </div>
+                <div className="flex items-center gap-5">
+                  {empleadoSeleccionado.fotoUrl ? (
+                    <img
+                      src={empleadoSeleccionado.fotoUrl}
+                      alt={empleadoSeleccionado.nombreCompleto}
+                      className="w-20 h-20 rounded-2xl object-cover border-4 border-white dark:border-slate-700 shadow-md"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center font-bold text-2xl">
+                      {empleadoSeleccionado.nombreCompleto.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
                   <div>
-                    <h3 className="text-xl font-bold text-slate-800 dark:text-white">
+                    <h3 className="text-2xl font-bold text-slate-800 dark:text-white">
                       {empleadoSeleccionado.nombreCompleto}
                     </h3>
                     <p className="text-sm font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
@@ -259,7 +277,6 @@ export default function Equipo() {
                 </button>
               </div>
 
-              {/* Selector de Pestañas */}
               <div className="flex gap-6 mt-2">
                 <button
                   onClick={() => setTabActiva('HORARIO')}
@@ -280,9 +297,7 @@ export default function Equipo() {
               </div>
             </div>
 
-            {/* Contenido del Modal */}
             <div className="p-6 overflow-y-auto max-h-[60vh] bg-white dark:bg-slate-900">
-              {/* PESTAÑA 1: HORARIO */}
               {tabActiva === 'HORARIO' &&
                 (cargandoModal ? (
                   <div className="py-12 text-center text-slate-500 dark:text-slate-400">
@@ -369,7 +384,6 @@ export default function Equipo() {
                   </div>
                 ))}
 
-              {/* PESTAÑA 2: FICHA DEL EMPLEADO */}
               {tabActiva === 'PERFIL' && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
                   {userRole === 'ADMIN' && !modoEdicion && (
@@ -464,7 +478,6 @@ export default function Equipo() {
                     </div>
                   </div>
 
-                  {/* Acciones de Edición */}
                   {modoEdicion && (
                     <div className="flex justify-end gap-3 pt-4 mt-6 border-t border-slate-100 dark:border-slate-800">
                       <button

@@ -1,5 +1,5 @@
 import { User, Lock, AlertCircle, Layers } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 
@@ -9,6 +9,10 @@ export default function Login() {
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem('token');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +27,15 @@ export default function Login() {
       const token = response.data.token;
       localStorage.setItem('token', token);
 
-      navigate('/dashboard');
+      // Decodificamos el token para ver si requiere cambio de password
+      const payloadBase64 = token.split('.')[1];
+      const decoded = JSON.parse(atob(payloadBase64));
+
+      if (decoded.requiereCambioPassword) {
+        navigate('/cambiar-password', { state: { tempPassword: password } });
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       console.error(err);
       setError('Credenciales incorrectas. Inténtalo de nuevo.');
@@ -33,11 +45,8 @@ export default function Login() {
   return (
     // Fondo general ligeramente gris para que la tarjeta blanca resalte
     <div className="min-h-screen bg-slate-50 flex overflow-hidden">
-      {/* MITAD IZQUIERDA: Contenedor alineado */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-12 z-10 relative animate-in slide-in-from-left-12 fade-in duration-700">
-        {/* LA TARJETA BLANCA QUE ECHABAS DE MENOS */}
         <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 space-y-8">
-          {/* Cabecera / Logo */}
           <div className="text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-3 mb-6">
               <div className="bg-blue-600 p-2.5 rounded-xl shadow-md shadow-blue-200">
@@ -51,7 +60,6 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Mensaje de Error */}
           {error && (
             <div className="p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl flex items-center gap-3 text-sm animate-in fade-in slide-in-from-top-2">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -59,7 +67,6 @@ export default function Login() {
             </div>
           )}
 
-          {/* Formulario */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-slate-700">
@@ -123,7 +130,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* MITAD DERECHA: Imagen Corporativa */}
       <div className="hidden lg:block lg:w-1/2 relative bg-slate-900 animate-in fade-in duration-1000 delay-150">
         <div className="absolute inset-0 bg-blue-900/40 mix-blend-multiply z-10"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent z-10"></div>

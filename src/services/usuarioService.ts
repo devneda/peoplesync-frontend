@@ -7,26 +7,28 @@ export const usuarioService = {
     return response.data;
   },
 
-  obtenerTodos: async (): Promise<Usuario[]> => {
-    const response = await api.get('/usuarios');
+  obtenerUsuarioPorId: async (id: string): Promise<Usuario> => {
+    const response = await api.get(`/usuarios/${id}`);
     return response.data;
   },
 
-  crearUsuario: async (datos: UsuarioRequest): Promise<Usuario> => {
-    const response = await api.post('/usuarios', datos);
+  crearUsuario: async (data: UsuarioRequest): Promise<Usuario> => {
+    const response = await api.post('/usuarios', data);
     return response.data;
   },
 
-  obtenerDelegaciones: async (): Promise<Delegacion[]> => {
-    const response = await api.get('/delegaciones');
-    return response.data;
-  },
-  actualizarUsuario: async (id: string, data: Partial<Usuario>) => {
+  actualizarUsuario: async (id: string, data: Partial<UsuarioRequest>): Promise<Usuario> => {
     const response = await api.put(`/usuarios/${id}`, data);
     return response.data;
   },
+
   obtenerManagers: async (): Promise<Usuario[]> => {
     const response = await api.get('/usuarios/managers');
+    return response.data;
+  },
+
+  cambiarMiPassword: async (data: { passwordActual: string; passwordNueva: string }) => {
+    const response = await api.put('/usuarios/me/password', data);
     return response.data;
   },
 };

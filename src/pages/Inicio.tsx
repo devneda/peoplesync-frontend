@@ -20,7 +20,6 @@ import {
   Layers,
   Megaphone,
 } from 'lucide-react';
-import toast from 'react-hot-toast';
 import type { Anuncio } from '../types';
 
 export default function Inicio() {
@@ -30,7 +29,6 @@ export default function Inicio() {
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
   const [cargando, setCargando] = useState(true);
 
-  // Formateo de fecha robusto
   const fechaHoy = new Date().toLocaleDateString('es-ES', {
     weekday: 'long',
     day: 'numeric',
@@ -45,7 +43,7 @@ export default function Inicio() {
           anuncioService.obtenerAnuncios()
         ]);
         setStats(statsData);
-        setAnuncios(anunciosData.slice(0, 3)); // Solo mostramos los 3 últimos en el dashboard
+        setAnuncios(anunciosData.slice(0, 3));
       } catch (error) {
         console.error(error);
       } finally {
@@ -78,9 +76,7 @@ export default function Inicio() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* 1. WIDGET DE BIENVENIDA (Premium Hero Section) */}
-      <div className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
-        {/* Elementos decorativos de fondo (Factorial/WorkDay style) */}
+      <div className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300 group">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-50/50 to-transparent dark:from-blue-900/10 pointer-events-none"></div>
         <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-100/50 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute right-20 -bottom-20 w-48 h-48 bg-indigo-100/50 dark:bg-indigo-900/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -124,19 +120,15 @@ export default function Inicio() {
             </div>
           </div>
 
-          {/* Ilustración o Icono Representativo */}
           <div className="hidden lg:flex items-center justify-center w-64 h-64 bg-slate-50 dark:bg-slate-800/50 rounded-[3rem] border-4 border-white dark:border-slate-800 shadow-xl relative animate-in zoom-in duration-700">
-            <div className="absolute -top-4 -right-4 w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg animate-bounce duration-[3000ms]">
+            <Layers className="w-32 h-32 text-blue-600 dark:text-blue-500 transition-transform duration-500 group-hover:scale-110" />
+            <div className="absolute -top-4 -right-4 w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:-translate-y-4 group-hover:rotate-6">
               <CheckCircle2 className="w-6 h-6 text-white" />
             </div>
-            <Layers className="w-32 h-32 text-blue-600 dark:text-blue-500" />
           </div>
         </div>
       </div>
 
-      {/* 2. DASHBOARD ESPECÍFICO SEGÚN ROL */}
-
-      {/* VISTA: ADMINISTRADOR */}
       {rol === 'ADMIN' && stats && (
         <div className="space-y-6 animate-in slide-in-from-bottom-4">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -191,7 +183,6 @@ export default function Inicio() {
         </div>
       )}
 
-      {/* VISTA: MANAGER */}
       {rol === 'MANAGER' && (
         <div className="space-y-6 animate-in slide-in-from-bottom-4">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -247,7 +238,6 @@ export default function Inicio() {
         </div>
       )}
 
-      {/* VISTA: USER (Empleado Raso) */}
       {rol === 'USER' && (
         <div className="space-y-6 animate-in slide-in-from-bottom-4">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -297,7 +287,6 @@ export default function Inicio() {
         </div>
       )}
 
-      {/* 3. ACCESOS RÁPIDOS Y WIDGET DE NOTICIAS (Común) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center justify-between mb-8">

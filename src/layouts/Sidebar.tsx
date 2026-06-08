@@ -114,7 +114,6 @@ export default function Sidebar({ darkMode, setDarkMode, isOpen, setIsOpen }: Si
             >
               <item.icon className={`w-5 h-5 transition-transform duration-500 group-hover:scale-110`} />
               <span className="tracking-tight">{item.label}</span>
-              {/* Indicador visual activo (Factorial Style) */}
               <div className="absolute left-0 w-1 h-0 bg-white rounded-full transition-all duration-500 opacity-0 active-indicator" />
             </NavLink>
           ))}
@@ -123,9 +122,18 @@ export default function Sidebar({ darkMode, setDarkMode, isOpen, setIsOpen }: Si
         <div className="p-6 border-t border-slate-100 dark:border-slate-800 space-y-6 bg-slate-50/50 dark:bg-slate-800/20">
           <div className="flex items-center gap-4 px-2">
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center rounded-2xl font-black text-sm shadow-lg">
-                {user ? getInitials(user.sub || 'User') : '??'}
-              </div>
+              {user?.fotoUrl ? (
+                <img
+                  src={user.fotoUrl.replace('/upload/', '/upload/w_200,h_200,c_fill,g_face,q_auto:best,f_auto/')}
+                  alt={user.sub}
+                  className="w-12 h-12 rounded-2xl object-cover shadow-lg border-2 border-white dark:border-slate-800"
+                  style={{ imageRendering: 'high-quality' }}
+                />
+              ) : (
+                <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center rounded-2xl font-black text-sm shadow-lg">
+                  {user ? getInitials(user.sub || 'User') : '??'}
+                </div>
+              )}
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full shadow-sm"></div>
             </div>
             <div className="overflow-hidden">
