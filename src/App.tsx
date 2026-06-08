@@ -8,8 +8,9 @@ import Equipo from './pages/Equipo';
 import AdminUsuarios from './pages/AdminUsuarios';
 import Ausencias from './pages/Ausencias';
 import GestionAusencias from './pages/GestionAusencias';
-import Inicio from './pages/Inicio'; // Importante tener esta línea
+import Inicio from './pages/Inicio';
 import Informes from './pages/Informes';
+import Publicaciones from './pages/Publicaciones';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/ausencias" element={<Ausencias />} />
               <Route path="/gestion-ausencias" element={<GestionAusencias />} />
               <Route path="/informes" element={<Informes />} />
+              <Route path="/publicaciones" element={<Publicaciones />} />
             </Route>
           </Route>
         </Routes>

@@ -38,5 +38,10 @@ export const fichajeService = {
   obtenerFichajesEmpleado: async (usuarioId: string, inicio: string, fin: string): Promise<Fichaje[]> => {
     const response = await api.get(`/fichajes/usuario/${usuarioId}?inicio=${inicio}&fin=${fin}`);
     return response.data;
+  },
+
+  registrarManual: async (entrada: string, salida: string, tipo: string) => {
+    const response = await api.post(`/fichajes/manual?entrada=${entrada}&salida=${salida}&tipo=${tipo}`);
+    return response.data;
   }
 };
