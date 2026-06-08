@@ -74,16 +74,22 @@ export default function Fichajes() {
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
+    
+    const calcularSincronizacion = () => {
+      const turnoAbierto = fichajesHoy.find((f) => !f.fechaHoraSalida);
+      if (turnoAbierto) {
+        const entradaMs = new Date(turnoAbierto.fechaHoraEntrada).getTime();
+        const ahoraMs = new Date().getTime();
+        const diffMinutos = Math.floor((ahoraMs - entradaMs) / 60000);
+        setMinutosActivos(diffMinutos);
+      }
+    };
+
     if (estaTrabajando) {
-      interval = setInterval(() => {
-        const turnoAbierto = fichajesHoy.find((f) => !f.fechaHoraSalida);
-        if (turnoAbierto) {
-          const entradaMs = new Date(turnoAbierto.fechaHoraEntrada).getTime();
-          const ahoraMs = new Date().getTime();
-          const diffMinutos = Math.floor((ahoraMs - entradaMs) / 60000);
-          setMinutosActivos(diffMinutos);
-        }
-      }, 10000);
+      // Calculamos inmediatamente al activar el turno
+      calcularSincronizacion();
+      // Actualizamos cada segundo para máxima precisión
+      interval = setInterval(calcularSincronizacion, 1000);
     } else {
       setMinutosActivos(0);
     }
