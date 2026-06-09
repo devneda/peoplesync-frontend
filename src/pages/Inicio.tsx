@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { dashboardService, type DashboardStats } from '../services/dashboardService';
 import { anuncioService } from '../services/anuncioService';
 import { fichajeService } from '../services/fichajeService';
+import { usuarioService } from '../services/usuarioService';
 import { getUsuarioFromToken, getRolFromToken } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import {
   Users,
@@ -26,6 +28,7 @@ import type { Anuncio, Usuario } from '../types';
 export default function Inicio() {
   const usuario = getUsuarioFromToken();
   const rol = getRolFromToken();
+  const { perfil } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -47,7 +50,7 @@ export default function Inicio() {
         const [statsData, anunciosData, estadoTrabajo] = await Promise.all([
           (rol === 'ADMIN' || rol === 'MANAGER') ? dashboardService.obtenerEstadisticas() : Promise.resolve(null),
           anuncioService.obtenerAnuncios(),
-          rol === 'USER' ? fichajeService.obtenerEstado() : Promise.resolve(false)
+          (rol === 'USER' || rol === 'MANAGER') ? fichajeService.obtenerEstado() : Promise.resolve(false)
         ]);
         setStats(statsData);
         setAnuncios(anunciosData.slice(0, 3));
@@ -60,6 +63,8 @@ export default function Inicio() {
     };
     cargarTodo();
   }, [rol]);
+
+  const nombreMostrar = perfil?.nombreCompleto?.split(' ')[0] || usuario?.sub?.split('@')[0];
 
   const calcularHaceCuanto = (fecha: string) => {
     const diff = new Date().getTime() - new Date(fecha).getTime();
@@ -104,7 +109,7 @@ export default function Inicio() {
 
             <div className="space-y-1">
               <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                ¡Hola, <span className="text-blue-600">{usuario?.sub?.split('@')[0]}</span>! 👋
+                ¡Hola, <span className="text-blue-600">{nombreMostrar}</span>! 👋
               </h1>
               <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-md">
                 Tu jornada hoy se ve excelente. Tienes todo listo para empezar.
@@ -116,14 +121,11 @@ export default function Inicio() {
                 <CalendarDays className="w-4 h-4 text-blue-500" />
                 {fechaHoy}
               </div>
-              {rol === 'USER' && (
-                <Link
-                  to="/fichajes"
-                  className={`flex items-center gap-2 px-4 py-2 text-white rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95 ${estaTrabajando ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200 dark:shadow-none' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200 dark:shadow-none'}`}
-                >
+              {estaTrabajando && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-200 dark:shadow-none animate-in zoom-in duration-300">
                   <Clock className="w-4 h-4" />
-                  {estaTrabajando ? 'Turno en curso' : 'Fichar ahora'}
-                </Link>
+                  Turno en curso
+                </div>
               )}
             </div>
           </div>
