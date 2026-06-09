@@ -14,6 +14,7 @@ import {
   Megaphone,
 } from 'lucide-react';
 import { getUsuarioFromToken, getRolFromToken } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
   darkMode: boolean;
@@ -26,17 +27,21 @@ export default function Sidebar({ darkMode, setDarkMode, isOpen, setIsOpen }: Si
   const navigate = useNavigate();
   const userRole = getRolFromToken();
   const user = getUsuarioFromToken();
+  const { perfil } = useAuth();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
 
-  const getInitials = (identificador: string) => {
+  const getInitials = (identificador: string, nombreCompleto?: string) => {
+    if (nombreCompleto) {
+      const partes = nombreCompleto.split(' ');
+      if (partes.length >= 2) return (partes[0][0] + partes[1][0]).toUpperCase();
+      return nombreCompleto.substring(0, 2).toUpperCase();
+    }
     if (!identificador) return '??';
     if (identificador.includes('@')) return identificador.substring(0, 2).toUpperCase();
-    const partes = identificador.split(' ');
-    if (partes.length >= 2) return (partes[0][0] + partes[1][0]).toUpperCase();
     return identificador.substring(0, 2).toUpperCase();
   };
 
@@ -131,14 +136,14 @@ export default function Sidebar({ darkMode, setDarkMode, isOpen, setIsOpen }: Si
                 />
               ) : (
                 <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center rounded-2xl font-black text-sm shadow-lg">
-                  {user ? getInitials(user.sub || 'User') : '??'}
+                  {getInitials(user?.sub || 'User', perfil?.nombreCompleto)}
                 </div>
               )}
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full shadow-sm"></div>
             </div>
             <div className="overflow-hidden">
               <p className="text-sm font-black text-slate-800 dark:text-slate-200 truncate tracking-tight">
-                {user?.sub?.split('@')[0]}
+                {perfil?.nombreCompleto || user?.sub?.split('@')[0]}
               </p>
               <span className="inline-block text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded-md mt-1">
                 {userRole}

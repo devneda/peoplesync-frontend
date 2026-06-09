@@ -13,30 +13,34 @@ import Informes from './pages/Informes';
 import Publicaciones from './pages/Publicaciones';
 import CambiarPassword from './pages/CambiarPassword';
 
+import { AuthProvider } from './context/AuthContext';
+
 function App() {
   return (
     <>
-      <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/cambiar-password" element={<CambiarPassword />} />
+      <AuthProvider>
+        <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/cambiar-password" element={<CambiarPassword />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route element={<DashboardLayout />}>
-              <Route path="/dashboard" element={<Inicio />} />
-              <Route path="/fichajes" element={<Fichajes />} />
-              <Route path="/equipo" element={<Equipo />} />
-              <Route path="/admin" element={<AdminUsuarios />} />
-              <Route path="/ausencias" element={<Ausencias />} />
-              <Route path="/gestion-ausencias" element={<GestionAusencias />} />
-              <Route path="/informes" element={<Informes />} />
-              <Route path="/publicaciones" element={<Publicaciones />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<Inicio />} />
+                <Route path="/fichajes" element={<Fichajes />} />
+                <Route path="/equipo" element={<Equipo />} />
+                <Route path="/admin" element={<AdminUsuarios />} />
+                <Route path="/ausencias" element={<Ausencias />} />
+                <Route path="/gestion-ausencias" element={<GestionAusencias />} />
+                <Route path="/informes" element={<Informes />} />
+                <Route path="/publicaciones" element={<Publicaciones />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </>
   );
 }

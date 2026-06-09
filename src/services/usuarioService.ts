@@ -27,6 +27,11 @@ export const usuarioService = {
     return response.data;
   },
 
+  obtenerMiPerfil: async (): Promise<Usuario> => {
+    const response = await api.get('/usuarios/me');
+    return response.data;
+  },
+
   cambiarMiPassword: async (data: { passwordActual: string; passwordNueva: string }) => {
     const response = await api.put('/usuarios/me/password', data);
     return response.data;
